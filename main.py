@@ -24,12 +24,10 @@ PARMOD = [
 def isfloat(string:str) -> bool:
     return string.replace(".", "", 1).isnumeric()
 
-# En input som bara accepterar att man skriver in integers mellan max och min
-# Kommer fortsätta fråga tills man skrivit in ett giltit tal
+# En input som bara accepterar att man skriver in integers alternativt float mellan max och min
 # Om man lägger till li som argument skrivs max och min över och vi skriver
 # ut alla alternativen som finns i listan istället, och utgår ifrån det för max och min
 # Man kan även lägga till felmeddelande om användaren skrev fel (annars default)
-# Och en option om det är okej att användaren går ur, genom att skriva 'q'
 # Msg är frågan användaren får
 def numericQuestion(msg, max=None, min=0, li=None, err=None):
     alt = "\n"      #   Alternativ - \n för att jag skriver ut hela frågan i en input
@@ -65,7 +63,7 @@ def numericQuestion(msg, max=None, min=0, li=None, err=None):
         return float(num)
 
 
-
+#! This function should not be called
 def trace_middlehand(angle):
     dir = 1 if np.sin(angle) > 0 else -1
         
@@ -82,6 +80,7 @@ def trace_middlehand(angle):
                             maxloop=500
     )
 
+# TODO Flytta ut ritandet och returnera enbart listor med koordinaterna
 # Draws [amount] field lines from diffrent places around the earth equaly far from each other
 def draw_field_lines(amount, XZ, XY, YZ):
     # calcualtes differnet places around the earth in radians
@@ -165,6 +164,19 @@ def draw_field_lines(amount, XZ, XY, YZ):
 # print("Calculations done. Drawing!")
 
 def main():
+    
+    # TODO flytta ned skapandet av variabler
+    # TODO Ta bort main() för det finns inget egentligt syfte med den
+    # TODO Gör så att man kan rita om med hjälp av de gamla värdena.
+    # TODO Lägg till möjlighet att rita ut ytterligare fältlinjer (för satellit)
+    # TODO Tillåt att man sparar ned beräknade värden till fil
+    # TODO Tillåt att man kan rita fältlinjer sparade i fil istället för att beräkna nya.
+    
+    # TODO Lägg till mindre linjer mellan de större i koordinat systemet.
+    # TODO FLytta titeln på axlarna till att vara utanför rektanglarna. (vertikal text för vertikal axel)
+    # TODO Implementera möjligheten att vända på axlarna så att de går åt andra håll
+    # TODO färglägg nattsidan av Jorden för att indikera var solen är.
+    
     while True:
         
         option = numericQuestion(
