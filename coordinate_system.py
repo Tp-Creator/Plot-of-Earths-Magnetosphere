@@ -1,5 +1,5 @@
 import turtle as t
-from time import sleep
+# from time import sleep
 from math import sqrt
 import numpy as np
 
@@ -51,12 +51,6 @@ class Coordinate_system():
         t.pendown()
         t.goto(self.x+self.xmax-arrow_length_x, self.y+arrow_length_y)
         
-        # horizontal axis name
-        t.penup()
-        t.goto(self.x + self.xmax+22/self.window.xscale, self.y-10/self.window.yscale)
-        t.pencolor('#5e5e5e')
-        t.write(f"{self.horizontal_name}", align='center', font=('Arial', 14, 'normal'))
-        t.pencolor('#808080')
         
         # horizontal axis gradering
          # int(self.xmin/self.density)*self.density avrundar nedåt till närmsta koordinat kongruent med self.density.
@@ -83,12 +77,7 @@ class Coordinate_system():
         t.pendown()
         t.goto(self.x+arrow_length_x, self.y+self.ymax-arrow_length_y)
         
-        # vertical axis name
-        t.penup()
-        t.goto(self.x, self.y + self.ymax+20/self.window.yscale)
-        t.pencolor('#5e5e5e')
-        t.write(f"{self.vertical_name}", align='center', font=('Arial', 14, 'normal'))
-        t.pencolor('#808080')
+
         
         # vertical axis gradering
          # int(self.ymin/self.density)*self.density är kongruent med self.density vilket gör att en av punkterna blir 0
@@ -110,16 +99,41 @@ class Coordinate_system():
         t.circle(1, steps=180)
      
     def draw_box(self):
+        # Formulas to calculate the sides
+        left = self.x + self.xmin-20/self.window.xscale
+        right = self.x + self.xmax+30/self.window.xscale
+        top = self.y + self.ymax+40/self.window.yscale
+        bottom = self.y + self.ymin-20/self.window.yscale
+        
         t = self.turtle
         t.color("#000000")
         
+        # Draw box
         t.penup()
-        t.goto(self.x + self.xmin-20/self.window.xscale, self.y + self.ymax+40/self.window.yscale)   
+        t.goto(left, top)   
         t.pendown()
-        t.goto(self.x + self.xmax+30/self.window.xscale, self.y + self.ymax+40/self.window.yscale)   
-        t.goto(self.x + self.xmax+30/self.window.xscale, self.y + self.ymin-20/self.window.yscale)   
-        t.goto(self.x + self.xmin-20/self.window.xscale, self.y + self.ymin-20/self.window.yscale)   
-        t.goto(self.x + self.xmin-20/self.window.xscale, self.y + self.ymax+40/self.window.yscale)
+        t.goto(right, top)   
+        t.goto(right, bottom)   
+        t.goto(left, bottom)   
+        t.goto(left, top)
+        t.penup()
+        
+        # Horizontal axis name
+        t.goto((left+right) / 2, bottom-30/self.window.yscale)
+        t.write(f"{self.horizontal_name}", align='center', font=('Arial', 14, 'normal'))
+        
+        # vertical axis name
+         # in pure turtle it is not possible to rotate text.
+         # Becuase of this tkinter is used here, since we want to rotate the text
+         # Since turtle is based on tkinter, the main function could be found in the turtle library
+        t._screen.cv._canvas.create_text(
+            (left*self.window.xscale-20, (top+bottom)*self.window.yscale / 2),
+            text=self.vertical_name,
+            justify="center",
+            font=('Arial', 14, 'normal'),
+            angle=90
+        )
+        
         
     # Function that draws out all things that are known how to be displayed without further arguments.
     def prepare_workspace(self):
@@ -129,7 +143,7 @@ class Coordinate_system():
         
     def draw_field_line(self, horizontal_coords:list, vertical_coords:list, color="#000000"):
         if not len(horizontal_coords) == len(vertical_coords):
-            print("The lists are not equaly long!")
+            print("The lists of coordinates are not equaly long!")
 
         # Prepare for drawing        
         t = self.turtle
@@ -149,8 +163,8 @@ def setup_environment(xscale=5, yscale=5, win_xwidth=1.0, win_ywidth=0.9, canvas
     # object of the displaying screen
     window = t.Screen()
     
-    # Makes the window fullscreen (1.00 % of the screen)
-    window.setup(win_xwidth, win_ywidth)
+    # Makes the window fullscreen (1.00 % of the screen), startx and y is where on the screen the window should be created
+    window.setup(width=win_xwidth, height=win_ywidth, startx=-1, starty=0)
 
     # 1px in turtle = [scale]px on screen in x respective y
     window.xscale = xscale
@@ -172,22 +186,33 @@ def wait_until_window_is_closed(window):
     
         
 
-if __name__ == "main":
+if __name__ == "__main__":
+    
+    print("hallå?")
+    
+    window = setup_environment(
+        xscale=10,
+        yscale=10,
+        win_xwidth=1.0,
+        win_ywidth=0.9,
+        canvas_xwidth=12000,
+        canvas_ywidth=3000
+    )
     
     # disables the update function built in to turtle for quicker drawing
-    t.tracer(0, 0)
-    # object of the displaying screen
-    window = t.Screen()
-    # Makes the window fullscreen (1.00 % of the screen)
-    window.setup(1.0, 0.9)
+    # t.tracer(0, 0)
+    # # object of the displaying screen
+    # window = t.Screen()
+    # # Makes the window fullscreen (1.00 % of the screen)
+    # window.setup(1.0, 0.9)
 
-    # 1px in turtle = 10px on screen 
-    window.xscale = 10
-    window.yscale = 10
+    # # 1px in turtle = 10px on screen 
+    # window.xscale = 10
+    # window.yscale = 10
     
-    XZ = Coordinate_system(x=-115, y=10, xmin=-70, xmax=30, ymin=-30, ymax=30, grid_density=5, horizontal_name="x", vertical_name="z")
-    XY = Coordinate_system(x=20, y=0, xmin=-70, xmax=30, ymin=-30, ymax=30, grid_density=5, horizontal_name="x", vertical_name="y")
-    YZ = Coordinate_system(x=115, y=-10, xmin=-30, xmax=30, ymin=-30, ymax=30, grid_density=5, horizontal_name="y", vertical_name="z")
+    XZ = Coordinate_system(window=window, x=-115, y=0, xmin=-70, xmax=30, ymin=-30, ymax=30, grid_density=5, horizontal_name="x (Re) solvind bl bla bla", vertical_name="pls work better now!")
+    XY = Coordinate_system(window=window, x=20, y=0, xmin=-70, xmax=30, ymin=-30, ymax=30, grid_density=5, horizontal_name="x", vertical_name="idk what is happening")
+    YZ = Coordinate_system(window=window, x=115, y=0, xmin=-30, xmax=30, ymin=-30, ymax=30, grid_density=5, horizontal_name="y", vertical_name="Yees")
 
     XZ.prepare_workspace()
     XY.prepare_workspace()
