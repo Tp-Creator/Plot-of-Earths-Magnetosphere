@@ -155,7 +155,7 @@ def draw_field_lines(amount, XZ, XY, YZ):
 # TODO Tillåt att man kan rita fältlinjer sparade i fil istället för att beräkna nya.
 
 # TODO Lägg till mindre linjer mellan de större i koordinat systemet.
-# TODO FLytta titeln på axlarna till att vara utanför rektanglarna. (vertikal text för vertikal axel)
+#// TODO FLytta titeln på axlarna till att vara utanför rektanglarna. (vertikal text för vertikal axel)
 # TODO Implementera möjligheten att vända på axlarna så att de går åt andra håll
 # TODO färglägg nattsidan av Jorden för att indikera var solen är.
 
