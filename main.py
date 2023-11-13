@@ -1,11 +1,19 @@
-from geopack import geopack
+import os
 from datetime import datetime
-import matplotlib.pyplot as plt
+import json
+
 import numpy as np
-from concurrent import futures
+from geopack import geopack
+
 import coordinate_system
 
+# import matplotlib.pyplot as plt
+# from concurrent import futures
 
+
+# Enters the directory where the program is run
+abspath = os.path.abspath(__file__)
+os.chdir(os.path.dirname(abspath))
 
 dt_obj = datetime.strptime('2015-09-23 08:21:00', '%Y-%m-%d %H:%M:%S')
 
@@ -112,6 +120,8 @@ def draw_field_lines(amount, XZ, XY, YZ):
     # calcualtes differnet places around the earth in radians    
     radians = np.arange(0, np.pi*2, np.pi*2/amount)
 
+    calculated_field_lines = []
+
     # calculates each field line using sin and cos of every angle in two axis
     for angle in radians:
         dir = 1 if np.sin(angle) > 0 else -1
@@ -125,11 +135,14 @@ def draw_field_lines(amount, XZ, XY, YZ):
                              parmod=PARMOD,
                              exname="t96",
                              inname="igrf",
-                             maxloop=4000)
+                             maxloop=40)
 
         # The data is stored in separate variables. Each variable is a list of all coordinates in that axis.
         # They are functions of the list index. x[i], y[i] and z[i] are one position on the field line.
         x, y, z = data[3:6]
+        
+        # Saves the calculated field line to be returned
+        calculated_field_lines.append([list(x), list(y), list(z)])
 
         #* Debug - prints the angle just calculated and amount of coordinates.
         print(angle, ":\n", len(data[3]), ":\n")
@@ -143,42 +156,10 @@ def draw_field_lines(amount, XZ, XY, YZ):
         coordinate_system.update_screen()
         
         print("Field line drawn!")
-
-
-
-
-#// TODO flytta ned skapandet av variabler
-#// TODO Ta bort main() för det finns inget egentligt syfte med den
-# TODO Gör så att man kan rita om med hjälp av de gamla värdena.
-# TODO Lägg till möjlighet att rita ut ytterligare fältlinjer (för satellit)
-# TODO Tillåt att man sparar ned beräknade värden till fil
-# TODO Tillåt att man kan rita fältlinjer sparade i fil istället för att beräkna nya.
-
-# TODO Lägg till mindre linjer mellan de större i koordinat systemet.
-#// TODO FLytta titeln på axlarna till att vara utanför rektanglarna. (vertikal text för vertikal axel)
-# TODO Implementera möjligheten att vända på axlarna så att de går åt andra håll
-# TODO färglägg nattsidan av Jorden för att indikera var solen är.
-
-while True:
-    
-    option = numericQuestion(
-        "What to do next?",
-        li=[
-            "Change coordinate system settings",
-            "Add new field line",
-            "Quit and exit program"]
-    )
-
-    if option == 0:
-        pass
-    elif option == 1:
-        pass
-    elif option == 2:
-        break
-    else:
-        print("Something went wrong with choosing option!")
         
+    return calculated_field_lines
 
+def new_calculation():
     window = coordinate_system.setup_environment(
         xscale=20,
         yscale=20,
@@ -196,8 +177,73 @@ while True:
     XY.prepare_workspace()
     YZ.prepare_workspace()
 
-    draw_field_lines(36, XZ, XY, YZ)
+    field_lines = draw_field_lines(36, XZ, XY, YZ)
     print("all drawn!\n")
+    
+    if input("Do you want to save the calculated field lines for future rendering? (Y/n)") not in ["n", "N"]:
+        print("saving... (to be implemented)")
+        
+        # Saves the field lines to file
+        with open(f"saved_field_lines/{str(datetime.now()).replace(':', '_')}.json", "w") as file:
+            json.dump(field_lines, file, indent=3)
+
+    coordinate_system.wait_until_window_is_closed(window)
+
+
+def load_from_file():
+    pass
+
+#// TODO flytta ned skapandet av variabler
+#// TODO Ta bort main() för det finns inget egentligt syfte med den
+# TODO Gör så att man kan rita om med hjälp av de gamla värdena.
+# TODO Lägg till möjlighet att rita ut ytterligare fältlinjer (för satellit)
+#// TODO Tillåt att man sparar ned beräknade värden till fil
+# TODO Tillåt att man kan rita fältlinjer sparade i fil istället för att beräkna nya.
+
+#// TODO Lägg till mindre linjer mellan de större i koordinat systemet.
+#// TODO FLytta titeln på axlarna till att vara utanför rektanglarna. (vertikal text för vertikal axel)
+# TODO Implementera möjligheten att vända på axlarna så att de går åt andra håll
+# TODO färglägg nattsidan av Jorden för att indikera var solen är.
+
+while True:
+    
+    option = numericQuestion(
+        "What do you want to do?",
+        li=[
+            "New Calculation",
+            "Load old calculation from file",
+            "Quit and exit program"]
+    )
+
+    if option == 0:
+        new_calculation()
+    elif option == 1:
+        pass
+    elif option == 2:
+        break
+    else:
+        print("Something went wrong with choosing option!")
+        
+
+    # window = coordinate_system.setup_environment(
+    #     xscale=20,
+    #     yscale=20,
+    #     win_xwidth=1.0,
+    #     win_ywidth=0.9,
+    #     canvas_xwidth=12000,
+    #     canvas_ywidth=3000
+    # )
+
+    # XZ = coordinate_system.Coordinate_system(window=window, x=-115, y=0, xmin=-50, xmax=20, ymin=-25, ymax=25, grid_density=5, small_grid_density=1, horizontal_name="x_GSM (Re)", vertical_name="z_GSM (Re)")
+    # XY = coordinate_system.Coordinate_system(window=window, x=20, y=0, xmin=-50, xmax=20, ymin=-25, ymax=25, grid_density=5, small_grid_density=1, horizontal_name="x_GSM (Re)", vertical_name="y_GSM (Re)")
+    # YZ = coordinate_system.Coordinate_system(window=window, x=115, y=0, xmin=-25, xmax=25, ymin=-25, ymax=25, grid_density=5, small_grid_density=1, horizontal_name="y_GSM (Re)", vertical_name="z_GSM (Re)")
+
+    # XZ.prepare_workspace()
+    # XY.prepare_workspace()
+    # YZ.prepare_workspace()
+
+    # draw_field_lines(36, XZ, XY, YZ)
+    # print("all drawn!\n")
     # input("what ")
 
 # XZ.draw_field_line(x, z)
@@ -207,4 +253,14 @@ while True:
     # coordinate_system.update_screen()
 
     coordinate_system.wait_until_window_is_closed(window)
-    # input()
+    
+    option = numericQuestion(
+        "What to do next?",
+        li=[
+            "Quit and exit program",
+            "Change coordinate system scale",
+            "Add field line",
+            "New Calculation",
+            "Load old calculation from file",
+            "Save calculations to file"]
+    )
