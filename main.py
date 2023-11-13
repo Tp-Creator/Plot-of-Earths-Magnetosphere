@@ -188,9 +188,9 @@ while True:
         canvas_ywidth=3000
     )
 
-    XZ = coordinate_system.Coordinate_system(window=window, x=-115, y=0, xmin=-70, xmax=30, ymin=-30, ymax=30, grid_density=2, horizontal_name="x_GSM (Re)", vertical_name="z_GSM (Re)")
-    XY = coordinate_system.Coordinate_system(window=window, x=20, y=0, xmin=-70, xmax=30, ymin=-30, ymax=30, grid_density=2, horizontal_name="x_GSM (Re)", vertical_name="y_GSM (Re)")
-    YZ = coordinate_system.Coordinate_system(window=window, x=115, y=0, xmin=-30, xmax=30, ymin=-30, ymax=30, grid_density=2, horizontal_name="y_GSM (Re)", vertical_name="z_GSM (Re)")
+    XZ = coordinate_system.Coordinate_system(window=window, x=-115, y=0, xmin=-50, xmax=20, ymin=-25, ymax=25, grid_density=5, small_grid_density=1, horizontal_name="x_GSM (Re)", vertical_name="z_GSM (Re)")
+    XY = coordinate_system.Coordinate_system(window=window, x=20, y=0, xmin=-50, xmax=20, ymin=-25, ymax=25, grid_density=5, small_grid_density=1, horizontal_name="x_GSM (Re)", vertical_name="y_GSM (Re)")
+    YZ = coordinate_system.Coordinate_system(window=window, x=115, y=0, xmin=-25, xmax=25, ymin=-25, ymax=25, grid_density=5, small_grid_density=1, horizontal_name="y_GSM (Re)", vertical_name="z_GSM (Re)")
 
     XZ.prepare_workspace()
     XY.prepare_workspace()
