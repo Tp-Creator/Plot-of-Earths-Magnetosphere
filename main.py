@@ -15,7 +15,7 @@ import coordinate_system
 abspath = os.path.abspath(__file__)
 os.chdir(os.path.dirname(abspath))
 
-dt_obj = datetime.strptime('2015-09-23 08:21:00', '%Y-%m-%d %H:%M:%S')
+dt_obj = datetime.strptime('2016-03-11 12:46:10', '%Y-%m-%d %H:%M:%S')
 
 # The number of seconds since 1970-01-01 00:00:00
 ut = dt_obj.timestamp()
@@ -90,28 +90,12 @@ def numericQuestion(msg, max=None, min=0, accept_float=False, li=None, err=None)
         num = input(msg+alt)
 
     # Skall alltid returnera int
-    if li == None:
+    if li != None:
         return int(num)
     else:
         return float(num)
 
 
-# #! This function should not be called
-# def trace_middlehand(angle):
-#     dir = 1 if np.sin(angle) > 0 else -1
-        
-#     print("yyyyyyeeeeeeezzz")
-#     return geopack.trace(xi=np.cos(angle),
-#                             yi=0,
-#                             zi=np.sin(angle),
-#                             dir=dir,
-#                             rlim=60,
-#                             r0=0.99,
-#                             parmod=PARMOD,
-#                             exname="t96",
-#                             inname="igrf",
-#                             maxloop=500
-#     )
 
 # TODO Flytta ut ritandet och returnera enbart listor med koordinaterna
 # Draws [amount] field lines from diffrent places around the earth equaly far from each other
@@ -135,14 +119,14 @@ def draw_field_lines(amount, XZ, XY, YZ):
                              parmod=PARMOD,
                              exname="t96",
                              inname="igrf",
-                             maxloop=40)
+                             maxloop=4000)
 
         # The data is stored in separate variables. Each variable is a list of all coordinates in that axis.
         # They are functions of the list index. x[i], y[i] and z[i] are one position on the field line.
         x, y, z = data[3:6]
         
         # Saves the calculated field line to be returned
-        calculated_field_lines.append([list(x), list(y), list(z)])
+        calculated_field_lines.append({"pos": [list(x), list(y), list(z)], "color": "#000000"})
 
         #* Debug - prints the angle just calculated and amount of coordinates.
         print(angle, ":\n", len(data[3]), ":\n")
@@ -180,6 +164,27 @@ def new_calculation():
     field_lines = draw_field_lines(36, XZ, XY, YZ)
     print("all drawn!\n")
     
+    # ### Temporary ###
+    # data = geopack.trace(xi=0.14,
+    #                          yi=0.04,
+    #                          zi=1.12,
+    #                          dir=1,
+    #                          rlim=60,
+    #                          r0=0.99,
+    #                          parmod=PARMOD,
+    #                          exname="t96",
+    #                          inname="igrf",
+    #                          maxloop=4000)
+    
+    # # The data is stored in separate variables. Each variable is a list of all coordinates in that axis.
+    # # They are functions of the list index. x[i], y[i] and z[i] are one position on the field line.
+    # x, y, z = data[3:6]
+    
+    # # Draws the field lines
+    # XZ.draw_field_line(x, z, "#aa0000")
+    # XY.draw_field_line(x, y, "#aa0000")
+    # YZ.draw_field_line(y, z, "#aa0000")
+    
     if input("Do you want to save the calculated field lines for future rendering? (Y/n)") not in ["n", "N"]:
         print("saving... (to be implemented)")
         
@@ -191,7 +196,44 @@ def new_calculation():
 
 
 def load_from_file():
-    pass
+    
+        
+    
+    window = coordinate_system.setup_environment(
+        xscale=20,
+        yscale=20,
+        win_xwidth=1.0,
+        win_ywidth=0.9,
+        canvas_xwidth=12000,
+        canvas_ywidth=3000
+    )
+
+    XZ = coordinate_system.Coordinate_system(window=window, x=-115, y=0, xmin=-50, xmax=20, ymin=-25, ymax=25, grid_density=5, small_grid_density=1, horizontal_name="x_GSM (Re)", vertical_name="z_GSM (Re)")
+    XY = coordinate_system.Coordinate_system(window=window, x=20, y=0, xmin=-50, xmax=20, ymin=-25, ymax=25, grid_density=5, small_grid_density=1, horizontal_name="x_GSM (Re)", vertical_name="y_GSM (Re)")
+    YZ = coordinate_system.Coordinate_system(window=window, x=115, y=0, xmin=-25, xmax=25, ymin=-25, ymax=25, grid_density=5, small_grid_density=1, horizontal_name="y_GSM (Re)", vertical_name="z_GSM (Re)")
+
+    XZ.prepare_workspace()
+    XY.prepare_workspace()
+    YZ.prepare_workspace()
+    
+    saves = os.listdir("saved_field_lines")
+    choice = numericQuestion("Which file do you want to load?", li=saves)
+    
+    chosen_file = f"saved_field_lines/{saves[choice]}"
+    
+    with open(chosen_file, "r") as file:
+        field_lines = json.load(file)
+        
+        for field_line in field_lines:
+            x = field_line[0]
+            y = field_line[1]
+            z = field_line[2]
+                
+            # Draws the field lines
+            XZ.draw_field_line(x, z)
+            XY.draw_field_line(x, y)
+            YZ.draw_field_line(y, z)
+    
 
 #// TODO flytta ned skapandet av variabler
 #// TODO Ta bort main() för det finns inget egentligt syfte med den
@@ -218,7 +260,7 @@ while True:
     if option == 0:
         new_calculation()
     elif option == 1:
-        pass
+        load_from_file()
     elif option == 2:
         break
     else:
@@ -252,7 +294,7 @@ while True:
 
     # coordinate_system.update_screen()
 
-    coordinate_system.wait_until_window_is_closed(window)
+    # coordinate_system.wait_until_window_is_closed(window)
     
     option = numericQuestion(
         "What to do next?",

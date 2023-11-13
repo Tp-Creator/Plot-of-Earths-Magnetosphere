@@ -252,6 +252,7 @@ if __name__ == "__main__":
 
     # updates the screen when everything is drawn
     t.update()
+    t.mainloop()
 
     h = window.window_height()
     w = window.window_width()
