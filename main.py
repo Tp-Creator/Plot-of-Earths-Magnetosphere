@@ -21,7 +21,7 @@ dt_obj = datetime.strptime('2016-03-11 12:46:10', '%Y-%m-%d %H:%M:%S')
 ut = dt_obj.timestamp()
 
 
-geopack.recalc(ut, vxgse=-400, vygse=0, vzgse=0)
+geopack.recalc(ut=ut, vxgse=-400, vygse=0, vzgse=0)
 
 PARMOD = [
     5,   # solar wind pressure pdyn (nanopascals)
@@ -30,6 +30,8 @@ PARMOD = [
     2,   # bzimf (nanotesla)
 ]
 
+# Function to clear the console
+clear = lambda: os.system('cls')
 
 
 def isfloat(string:str) -> bool:
@@ -128,6 +130,8 @@ def field_line_group(amount:int, color:str="#000000"):
 
     # calculates each field line using sin and cos of every angle in two axis
     for i, angle in enumerate(radians, 1):
+        clear()
+        print(f"Calculating field line... \n{i} / {amount}")        # prints out how far we've come in calculating
         dir = 1 if np.sin(angle) > 0 else -1
         
         data = geopack.trace(xi=np.cos(angle),
@@ -149,8 +153,7 @@ def field_line_group(amount:int, color:str="#000000"):
         calculated_field_lines.append({"pos": [list(x), list(y), list(z)], "color": color})
 
         #* Debug - prints the angle just calculated and amount of coordinates.
-        print(angle, ":\n", len(data[3]), ":\n")
-        print(f"{i} / {amount}")
+        # print(angle, ":\n", len(data[3]), ":\n")
         
     return calculated_field_lines
 
@@ -370,14 +373,14 @@ while True:
         XZ.draw_field_line(x, z, color)
         XY.draw_field_line(x, y, color)
         YZ.draw_field_line(y, z, color)
-        
+
     # coordinate_system.update_screen()
-    
-    
+
+
     if option not in [1, 4, 5] and input("Do you want to save the calculated field lines for future rendering? (Y/n)") not in ["n", "N"]:
         print("saving... (to be implemented)")
         save_to_file(field_lines)
-    
+
     option = numericQuestion(
         "What to do next?",
         li=[
@@ -391,15 +394,17 @@ while True:
 
     if option == 0:
         break
-        field_lines = field_line_group(numericQuestion("how many field lines?", max=100))
     elif option == 1:
-        # window_settings = change_window_settings(window_settings)
-        # window = change_window_settings(window, window_settings)
         window_settings = change_window_settings(window_settings)
         window = coordinate_system.modify_environment(window, window_settings)
     elif option == 2:
         field_line = new_calculation()
-        # break
+    elif option == 3:
+        field_lines = field_line_group(numericQuestion("how many field lines?"))
+    elif option == 4:
+        field_lines = load_from_file()
+    elif option == 5:
+        save_to_file(field_lines)
     else:
         print("Something went wrong with choosing option!")
 
