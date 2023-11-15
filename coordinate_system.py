@@ -110,7 +110,7 @@ class Coordinate_system():
             t.penup()
             if ypos != 0:
                 t.goto(self.x-1, self.y+ypos-0.7)
-                t.write(f"{ypos}", align='right', font=('Arial', int(self.window.xscale), 'normal'))
+                t.write(f"{ypos}", align='right', font=('Arial', int(self.window.yscale), 'normal'))
             t.goto(self.x-0.5, ypos+self.y)
             t.pendown()
             t.goto(self.x+0.5, ypos+self.y)
@@ -210,9 +210,23 @@ def setup_environment(xscale=5, yscale=5, win_xwidth=1.0, win_ywidth=0.9, canvas
     window.screensize(canvas_xwidth, canvas_ywidth)
     
     return window
+
+def modify_environment(window, window_settings):
+    # for key in window_settings:
+    #     window.key = window_settings[key]
+    window.xscale = window_settings["xscale"]
+    window.yscale = window_settings["yscale"]
+    
+    window.screensize(
+        window_settings["canvas_xwidth"],
+        window_settings["canvas_ywidth"]
+    )
+        
+    return window
     
 # updates the screen
 def update_screen():
+    t.tracer(0, 0)
     t.update()
     
 # goes into a whileloop until the window is exited
@@ -227,8 +241,8 @@ if __name__ == "__main__":
     print("hallå?")
     
     window = setup_environment(
-        xscale=30,
-        yscale=30,
+        xscale=10,
+        yscale=10,
         win_xwidth=1.0,
         win_ywidth=0.9,
         canvas_xwidth=120000,
@@ -252,11 +266,17 @@ if __name__ == "__main__":
 
     # updates the screen when everything is drawn
     t.update()
-    t.mainloop()
+    # t.mainloop()
 
     h = window.window_height()
     w = window.window_width()
     print(h, w)
+    
+    input()
+    
+    XZ.clear()
+    
+    input()
 
 
     # Wait for mouse click on exit
