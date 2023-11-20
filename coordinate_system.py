@@ -193,11 +193,12 @@ class Coordinate_system():
         
         
 def setup_environment(xscale=5, yscale=5, win_xwidth=1.0, win_ywidth=0.9, canvas_xwidth=5000, canvas_ywidth=2000):    
-    # disables the update function built in to turtle for quicker drawing
-    t.tracer(0, 0)
     
     # object of the displaying screen
     window = t.Screen()
+    
+    # disables the update function built in to turtle for quicker drawing
+    window.tracer(0, 0)
     
     # Makes the window fullscreen (1.00 % of the screen), startx and y is where on the screen the window should be created
     window.setup(width=win_xwidth, height=win_ywidth, startx=-1, starty=0)

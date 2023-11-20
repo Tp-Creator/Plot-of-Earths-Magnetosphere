@@ -7,32 +7,22 @@ from geopack import geopack
 
 import coordinate_system
 
-# import matplotlib.pyplot as plt
-# from concurrent import futures
-
 
 # Enters the directory where the program is run
 abspath = os.path.abspath(__file__)
 os.chdir(os.path.dirname(abspath))
 
-dt_obj = datetime.strptime('2016-03-11 12:46:10', '%Y-%m-%d %H:%M:%S')
-
-# The number of seconds since 1970-01-01 00:00:00
-ut = dt_obj.timestamp()
-
-
-geopack.recalc(ut=ut, vxgse=-400, vygse=0, vzgse=0)
-
-PARMOD = [
-    5,   # solar wind pressure pdyn (nanopascals)
-    0,   # dst (nanotesla)
-    0,   # byimf (nanotesla)
-    2,   # bzimf (nanotesla)
-]
 
 # Function to clear the console
 clear = lambda: os.system('cls')
 
+
+def remove_chars(string:str, chars:str):
+    for char in chars:
+        string = string.replace(char, "")
+        
+    return string
+    
 
 def isfloat(string:str) -> bool:
     """Checks if string can be converted to float.
@@ -44,10 +34,27 @@ def isfloat(string:str) -> bool:
         bool: True: can be converted to float. 
     """
     
+    # if the number is negative - isnumeric doesn't handle negative numbers
+    if string[0] == "-":
+        string = string[1:]
+    
     return string.replace(".", "", 1).isnumeric()
 
 
-def numericQuestion(msg, max=None, min=0, accept_float=False, accept_None=False, li=None, err=None):
+def choose_color(default):
+    color = input("\nWhat color do you want your field_line to be in? (ex format: #ff00aa)\nIf invalid format red will be used.\ncolor: ")
+    
+    # test if color is valid
+    if len(color) == 7 and color[0] == "#" and remove_chars(color, "0123456789abcdef ") == "#":
+        print("Color was valid.")
+        return color
+    
+    else:
+        print("Color was invalid, changing to default...")
+        return default
+        
+
+def numericQuestion(msg, max=None, min=0, accept_float=False, accept_None=False, unacceptable=[], li=None, err=None):
     """En input som bara accepterar att man skriver in integers alternativt float mellan max och min
     Om man lägger till li som argument skrivs max och min över och vi skriver
     ut alla alternativen som finns i listan istället, och utgår ifrån det för max och min
@@ -92,10 +99,12 @@ def numericQuestion(msg, max=None, min=0, accept_float=False, accept_None=False,
             else:
                 pass
             
-        if isfloat(num):            
+        if isfloat(num) and int(float(num)) not in unacceptable:
             if max is not None and (max < float(num) or min > float(num)):
                 pass
             elif max is None and min > float(num):
+                print("max is None: ", max is None)
+                print("min > float(num): ", min > float(num))
                 pass
             else:
                 break
@@ -118,10 +127,12 @@ def numericQuestion(msg, max=None, min=0, accept_float=False, accept_None=False,
         return float(num)
 
 
+# Draws a group of field lines from diffrent places around the earth equaly far from each other
+def field_line_group(parmod):
 
-#// TODO Flytta ut ritandet och returnera enbart listor med koordinaterna
-# Draws [amount] field lines from diffrent places around the earth equaly far from each other
-def field_line_group(amount:int, color:str="#000000"):
+    amount = numericQuestion("how many field lines?")
+    maxloop = numericQuestion("MaxLoop (How long field line should we make (amount of itterations))?", 10000)
+    color = choose_color("#000000")
 
     # calcualtes differnet places around the earth in radians    
     radians = np.arange(0, np.pi*2, np.pi*2/amount)
@@ -133,17 +144,17 @@ def field_line_group(amount:int, color:str="#000000"):
         clear()
         print(f"Calculating field line... \n{i} / {amount}")        # prints out how far we've come in calculating
         dir = 1 if np.sin(angle) > 0 else -1
-        
+
         data = geopack.trace(xi=np.cos(angle),
                              yi=0,
                              zi=np.sin(angle),
                              dir=dir,
                              rlim=60,
                              r0=0.99,
-                             parmod=PARMOD,
+                             parmod=parmod,
                              exname="t96",
                              inname="igrf",
-                             maxloop=4000)
+                             maxloop=maxloop)
 
         # The data is stored in separate variables. Each variable is a list of all coordinates in that axis.
         # They are functions of the list index. x[i], y[i] and z[i] are one position on the field line.
@@ -151,91 +162,96 @@ def field_line_group(amount:int, color:str="#000000"):
         
         # Saves the calculated field line to be returned
         calculated_field_lines.append({"pos": [list(x), list(y), list(z)], "color": color})
-
-        #* Debug - prints the angle just calculated and amount of coordinates.
-        # print(angle, ":\n", len(data[3]), ":\n")
         
     return calculated_field_lines
 
-
-# TODO will be for adding a new field line to the plot
-def new_calculation():
-    # window = coordinate_system.setup_environment(
-    #     xscale=20,
-    #     yscale=20,
-    #     win_xwidth=1.0,
-    #     win_ywidth=0.9,
-    #     canvas_xwidth=12000,
-    #     canvas_ywidth=3000
-    # )
-
-    # XZ = coordinate_system.Coordinate_system(window=window, x=-115, y=0, xmin=-50, xmax=20, ymin=-25, ymax=25, grid_density=5, small_grid_density=1, horizontal_name="x_GSM (Re)", vertical_name="z_GSM (Re)")
-    # XY = coordinate_system.Coordinate_system(window=window, x=20, y=0, xmin=-50, xmax=20, ymin=-25, ymax=25, grid_density=5, small_grid_density=1, horizontal_name="x_GSM (Re)", vertical_name="y_GSM (Re)")
-    # YZ = coordinate_system.Coordinate_system(window=window, x=115, y=0, xmin=-25, xmax=25, ymin=-25, ymax=25, grid_density=5, small_grid_density=1, horizontal_name="y_GSM (Re)", vertical_name="z_GSM (Re)")
-
-    # XZ.prepare_workspace()
-    # XY.prepare_workspace()
-    # YZ.prepare_workspace()
-
-    # field_lines = field_line_group(36, XZ, XY, YZ)
-    # print("all drawn!\n")
+#// TODO will be for adding a new field line to the plot
+def add_specific_field_line(parmod):
     
-    ### Temporary ###        ######         #####
-    data = geopack.trace(xi=0.14,
-                             yi=0.04,
-                             zi=1.12,
-                             dir=1,
-                             rlim=60,
-                             r0=0.99,
-                             parmod=PARMOD,
-                             exname="t96",
-                             inname="igrf",
-                             maxloop=4000)
+    xi = numericQuestion("What will be the start X coordinate?", min=-100, accept_float=True)
+    yi = numericQuestion("What will be the start Y coordinate?", min=-100, accept_float=True)
+    zi = numericQuestion("What will be the start Z coordinate?", min=-100, accept_float=True)
+    dir = numericQuestion("In what direction should we calcualte? (1 or -1)", 1, -1, unacceptable=[0], err="Only 1 and -1 are accepted")
+    maxloop = numericQuestion("MaxLoop (How long field line should we make (amount of itterations))?", 10000)
+    color = choose_color("#ff0000")
+    
+    print("\nCalculating...")
+    
+    # A satellite
+    # xi=0.14,
+    # yi=0.04,
+    # zi=1.12,
+    # dir = 1
+    
+    data = geopack.trace(xi=xi,
+                         yi=yi,
+                         zi=zi,
+                         dir=dir,
+                         rlim=60,
+                         r0=0.99,
+                         parmod=parmod,
+                         exname="t96",
+                         inname="igrf",
+                         maxloop=maxloop)
 
     # The data is stored in separate variables. Each variable is a list of all coordinates in that axis.
     # They are functions of the list index. x[i], y[i] and z[i] are one position on the field line.
     x, y, z = data[3:6]
 
     return {"pos": [list(x), list(y), list(z)], "color": color}
-
-    # Draws the field lines
-    XZ.draw_field_line(x, z, "#aa0000")
-    XY.draw_field_line(x, y, "#aa0000")
-    YZ.draw_field_line(y, z, "#aa0000")
-    #######             ######              #####
     
 
-def save_to_file(field_lines):
+def save_to_file(field_lines, parmod, recalc):
     # Saves the field lines to file
+    
+    data = {
+        "parameters": {
+            "parmod": parmod,
+            "recalc": recalc
+        },
+        
+        "coordinates": field_lines
+    }
+    
     with open(f"saved_field_lines/{str(datetime.now()).replace(':', '_')}.json", "w") as file:
-        json.dump(field_lines, file, indent=3)
+        json.dump(data, file, indent=3)
 
 
-def load_from_file():
+def load_from_file(parmod, recalc_values):
     saves = os.listdir("saved_field_lines")
     choice = numericQuestion("Which file do you want to load?", li=saves)
     
     chosen_file = f"saved_field_lines/{saves[choice]}"
     
     with open(chosen_file, "r") as file:
-        field_lines = json.load(file)
+        data = json.load(file)
         
-        return field_lines
+        field_lines = data["coordinates"]
+        parmod = data["parameters"]["parmod"]
+        recalc_values = data["parameters"]["recalc"]
+        
+        # recalculate the model according to the time of the loaded data.
+        geopack.recalc(**recalc_values)
+        
+        return field_lines, parmod, recalc_values
     
     
 def change_window_settings(window_settings):
     print("Change the settings for the windows. Type the same value to keep it.")
     for key in window_settings:
-        if type(window_settings[key]) is float:
+        # if type(window_settings[key]) is float:
+        if key in ["win_xwidth", "win_ywidth"]:
             pass
         else:
             temp = numericQuestion(f"{key}, current: {window_settings[key]}: ", accept_None=True)
             
             if temp is not None:
                 window_settings[key] = temp
-        
+
     print("These are the new settings:")
     for key in window_settings:
+        if key in ["win_xwidth", "win_ywidth"]:
+            continue
         print(f"{key}: {window_settings[key]}")
         # window.key = window_settings[key]
         
@@ -244,11 +260,6 @@ def change_window_settings(window_settings):
     
     
 def create_coordinate_systems(window):
-
-    # if Daniel or Joel in computer_users:
-    #    if windows == True:
-    #        del(system32)
-
     # Create coordinate system objects
     XZ = coordinate_system.Coordinate_system(
         window=window,
@@ -298,10 +309,10 @@ def create_coordinate_systems(window):
 #// TODO flytta ned skapandet av variabler
 #// TODO Ta bort main() för det finns inget egentligt syfte med den
 #// TODO Gör så att man kan rita om med hjälp av de gamla värdena.
-# TODO Lägg till möjlighet att rita ut ytterligare fältlinjer (för satellit)
-    # TODO Om man laddar in från fil, så ska man hämta parametrarna för det tillfället
-        # TODO Spara parametrarna till fil.
-        # TODO Ladda parametrar från fil.
+#// TODO Lägg till möjlighet att rita ut ytterligare fältlinjer (för satellit)
+    #// TODO Om man laddar in från fil, så ska man hämta parametrarna för det tillfället
+        #// TODO Spara parametrarna till fil.
+        #// TODO Ladda parametrar från fil.
 #// TODO Tillåt att man sparar ned beräknade värden till fil
 #// TODO Tillåt att man kan rita fältlinjer sparade i fil istället för att beräkna nya.
 
@@ -310,7 +321,28 @@ def create_coordinate_systems(window):
 # TODO Implementera möjligheten att vända på axlarna så att de går åt andra håll
 # TODO färglägg nattsidan av Jorden för att indikera var solen är.
 
-### Default Values for the window
+### Default variable values
+
+    # For the geopack.recalc() function
+    # calculates the number of seconds from 1970-01-01 00:00:00 to the datetime below
+recalc_values = {
+    "ut": datetime.strptime('2016-09-21 12:46:10', '%Y-%m-%d %H:%M:%S').timestamp(),
+    "vxgse": 0,         # Endast "ut" krävs för att köra funktionen geopack.recalc(recalc_values)
+    "vygse": 0,         # Dessa tre gör ingenting, varför?
+    "vzgse": 0
+}
+
+    # Solvind data
+parmod = [
+    5000,   # solar wind pressure pdyn (nanopascals)
+    5,   # dst (nanotesla)
+    0,   # byimf (nanotesla)
+    2,   # bzimf (nanotesla)
+]
+
+geopack.recalc(**recalc_values)
+
+
 window_settings = {
     "xscale": 7,
     "yscale": 7,
@@ -319,7 +351,13 @@ window_settings = {
     "canvas_xwidth": 12000,
     "canvas_ywidth": 3000
 }
+
 ###
+
+# Potensiella fel:
+    # När man laddar in så får man inte rätt parmod och recalc_values
+        # Recalc_values laddas inte in
+    #
 
 
 # Select what to do
@@ -328,31 +366,27 @@ option = numericQuestion(
     li=[
         "Quit and exit program",
         "Load old calculation from file",
-        "New Calculation"]
+        "New group calculation"]
 )
 
 if option == 0:
     exit()
 elif option == 1:
-    field_lines = load_from_file()
+    field_lines, parmod, recalc_values = load_from_file(parmod, recalc_values)
 elif option == 2:
-    field_lines = field_line_group(numericQuestion("how many field lines?"))
-    # break
+    field_lines = field_line_group(parmod)
 else:
     print("Something went wrong with choosing option!")
 
-# Create drawing space
+# Create turtle window
 window = coordinate_system.setup_environment(**window_settings)
 
-while True:
-    
-    # Create and Draw coordinatesystems (prapare for drawing the plot)
-    # print(window_settings)
 
+while True:
     # Creates the the coordinate system objects
-    print(window)
     XZ, XY, YZ = create_coordinate_systems(window)
 
+    # Draws the coordinatesystems
     XZ.prepare_workspace()
     XY.prepare_workspace()
     YZ.prepare_workspace()
@@ -374,50 +408,62 @@ while True:
         XY.draw_field_line(x, y, color)
         YZ.draw_field_line(y, z, color)
 
-    # coordinate_system.update_screen()
-
 
     if option not in [1, 4, 5] and input("Do you want to save the calculated field lines for future rendering? (Y/n)") not in ["n", "N"]:
-        print("saving... (to be implemented)")
-        save_to_file(field_lines)
+        print("saving...")
+        save_to_file(field_lines, parmod, recalc_values)
 
     option = numericQuestion(
         "What to do next?",
         li=[
             "Quit and exit program",
             "Change coordinate system scale",
-            "Add field line",
-            "New Calculation",
+            "Add a specific field line",
+            "New group calculation",
             "Load old calculation from file",
             "Save calculations to file (if you forgot to do it)"]
     )
 
+    # Quit and exit program
     if option == 0:
         break
+    
+    # Change coordinate system scale
     elif option == 1:
         window_settings = change_window_settings(window_settings)
-        window = coordinate_system.modify_environment(window, window_settings)
+        try:
+            window = coordinate_system.modify_environment(window, window_settings)
+        except:
+            # if the window was closed
+            window = coordinate_system.setup_environment(**window_settings)
+    
+    # Add a specific field line
     elif option == 2:
-        field_line = new_calculation()
+        field_line = add_specific_field_line(parmod)
+        print("adding new field line.")
+        field_lines.append(field_line)
+    
+    # New group calculation
     elif option == 3:
-        field_lines = field_line_group(numericQuestion("how many field lines?"))
+        field_lines = field_line_group(parmod)
+        
+    # Load old calculation from file
     elif option == 4:
-        field_lines = load_from_file()
+        field_lines, parmod, recalc_values = load_from_file(parmod, recalc_values)
+    
+    # Save calculations to file (if you forgot to do it)
     elif option == 5:
-        save_to_file(field_lines)
+        save_to_file(field_lines, parmod, recalc_values)
+    
     else:
         print("Something went wrong with choosing option!")
 
-    window.clear()
-    window.tracer(0, 0)     # Is needed since when to update is also cleared 
-    # print("cleard screen")
-    
-
-    # Kill the window before either creating a new or quitting the program 
-    # try:
-    #     window.bye()
-    # except:
-    #     print("Turtle window was already killed!")
+    # Cleaning up for new rendering
+    try:
+        window.clear()          # will fail if the window is closed
+        window.tracer(0, 0)     # Is needed since when to update is also cleared 
+    except:
+        window = coordinate_system.setup_environment(**window_settings)
 
 
 # Kill the window before quitting the program 

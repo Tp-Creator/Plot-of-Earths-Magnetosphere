@@ -1,7 +1,8 @@
 {
     "parameters": {
-        "Parmod": [1, 2, 3, 4],
+        "parmod": [1, 2, 3, 4],
         "recalc": {
+            "ut": 1232435647,
             "vxgse": -400, 
             "vygse": 0,
             "vzgse": 0
