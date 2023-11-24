@@ -18,11 +18,14 @@ class Coordinate_system():
             grid_density: float,
             small_grid_density: float | None,
             horizontal_name: str,
-            vertical_name: str):
+            vertical_name: str,
+            vertical_dir: int=1,
+            horizontal_dir: int=1,
+            ):
         
         self.window = window
-        self.x = x
-        self.y = y
+        self.x = x                  # Center of coordinate system box
+        self.y = y                  # Center of coordinate system box
         self.xmin = xmin
         self.xmax = xmax
         self.ymin = ymin
@@ -31,19 +34,28 @@ class Coordinate_system():
         self.small_grid_density = small_grid_density
         self.horizontal_name = horizontal_name
         self.vertical_name = vertical_name
+        self.vd = vertical_dir
+        self.hd = horizontal_dir
+        
+        # Origo coordinates
+        self.xorg = x + ((xmax-xmin)/2 - xmax) * horizontal_dir
+        self.yorg = y + ((ymax-ymin)/2 - ymax) * vertical_dir
+        
         self.turtle = t.Turtle()
         
         # Remove visibility of turtle
         self.turtle.hideturtle()
         self.turtle.speed(0)        
     
-    def home(self):
-        self.turtle.goto(self.x, self.y)
+    def origo(self):
+        self.turtle.goto(self.xorg, self.yorg)
         
     def draw_coordinate_system(self):
         t = self.turtle
-        t.pencolor('#5e5e5e')
-        t.pencolor('#a8a8a8')
+        hd = self.hd
+        vd = self.vd
+        # t.pencolor('#5e5e5e')
+        # t.pencolor('#a8a8a8')
         t.pencolor('#808080')
 
         # Calculating the size of the arrow in relation to the window size, x and y
@@ -52,20 +64,21 @@ class Coordinate_system():
         arrow_length_y = arrow_length/self.window.yscale
         
         
+        
+        
         ###############
         # draw HORIZONTAL AXIS
-                
         t.penup()
-        t.goto(self.x+self.xmin, self.y)
+        t.goto(self.xorg+self.xmin*hd, self.yorg)
         t.pendown()
-        t.goto(self.x+self.xmax, self.y)
+        t.goto(self.xorg+self.xmax*hd, self.yorg)
         
         # horizontal axis arrow
-        t.goto(self.x+self.xmax-arrow_length_x, self.y-arrow_length_y)
+        t.goto(self.xorg + hd * (self.xmax-arrow_length_x), self.yorg-arrow_length_y)
         t.penup()
-        t.goto(self.x+self.xmax, self.y)
+        t.goto(self.xorg+self.xmax * hd, self.yorg)
         t.pendown()
-        t.goto(self.x+self.xmax-arrow_length_x, self.y+arrow_length_y)
+        t.goto(self.xorg + hd * (self.xmax-arrow_length_x), self.yorg+arrow_length_y)
         
         
         # horizontal axis grid
@@ -74,70 +87,76 @@ class Coordinate_system():
             t.penup()
             # write grid value number 
             if xpos != 0:
-                t.goto(xpos+self.x, self.y-2.5)
+                t.goto(xpos * hd +self.xorg, self.yorg-2.5)
                 t.write(f"{xpos}", align='center', font=('Arial', int(self.window.xscale), 'normal'))
             # Draw the line
-            t.goto(xpos+self.x, self.y-0.5)
+            t.goto(xpos  * hd + self.xorg, self.yorg-0.5)
             t.pendown()
-            t.goto(xpos+self.x, self.y+0.5)
+            t.goto(xpos  * hd + self.xorg, self.yorg+0.5)
         
         # horizontal small grid - small grid density
         for xpos in np.arange(int(self.xmin/self.small_grid_density)*self.small_grid_density, self.xmax, self.small_grid_density):
             if (1 < xpos or xpos < -1) and xpos % self.grid_density != 0:
                 t.penup()
-                t.goto(xpos+self.x, self.y-0.2)
+                t.goto(xpos * hd + self.xorg, self.yorg-0.2)
                 t.pendown()
-                t.goto(xpos+self.x, self.y+0.2)
+                t.goto(xpos * hd + self.xorg, self.yorg+0.2)
         
                
         ###############
         # draw VERTICAL AXIS         
         t.penup()
-        t.goto(self.x, self.y+self.ymin)
+        t.goto(self.xorg, self.yorg + self.ymin * vd)
         t.pendown()
-        t.goto(self.x, self.y+self.ymax)
+        t.goto(self.xorg, self.yorg + self.ymax * vd)
         
         # vertical axis arrow
-        t.goto(self.x-arrow_length_x, self.y+self.ymax-arrow_length_y)
+        t.goto(self.xorg-arrow_length_x, self.yorg + vd * (self.ymax-arrow_length_y))
         t.penup()
-        t.goto(self.x, self.y+self.ymax)
+        t.goto(self.xorg, self.yorg+self.ymax * vd)
         t.pendown()
-        t.goto(self.x+arrow_length_x, self.y+self.ymax-arrow_length_y)
+        t.goto(self.xorg+arrow_length_x, self.yorg + vd * (self.ymax-arrow_length_y))
         
         # vertical grid - grid densisty
          # int(self.ymin/self.density)*self.density är kongruent med self.density vilket gör att en av punkterna blir 0
         for ypos in np.arange(int(self.ymin/self.grid_density)*self.grid_density, self.ymax, self.grid_density):
             t.penup()
             if ypos != 0:
-                t.goto(self.x-1, self.y+ypos-0.7)
+                t.goto(self.xorg-1, self.yorg + vd * ypos - 0.7)
                 t.write(f"{ypos}", align='right', font=('Arial', int(self.window.yscale), 'normal'))
-            t.goto(self.x-0.5, ypos+self.y)
+            t.goto(self.xorg-0.5,  vd * ypos + self.yorg)
             t.pendown()
-            t.goto(self.x+0.5, ypos+self.y)
+            t.goto(self.xorg+0.5, vd * ypos + self.yorg)
         
         # vertical small grid - small grid density
         for ypos in np.arange(int(self.ymin/self.small_grid_density)*self.small_grid_density, self.ymax, self.small_grid_density):
             if (1 < ypos or ypos < -1) and ypos % self.grid_density != 0:                
                 t.penup()
-                t.goto(self.x-0.2, ypos+self.y)
+                t.goto(self.xorg - 0.2, vd * ypos + self.yorg)
                 t.pendown()
-                t.goto(self.x+0.2, ypos+self.y)
+                t.goto(self.xorg + 0.2, vd * ypos + self.yorg)
 
 
     def draw_earth(self):
         t = self.turtle
         
         t.penup()
-        t.goto(self.x, self.y-1)
+        t.goto(self.xorg, self.yorg-1)
         t.pendown()
         t.circle(1, steps=180)
      
     def draw_box(self):
         # Formulas to calculate the sides
-        left = self.x + self.xmin-40/self.window.xscale - 1
-        right = self.x + self.xmax+40/self.window.xscale + 1
-        top = self.y + self.ymax+40/self.window.yscale + 1
-        bottom = self.y + self.ymin-40/self.window.yscale - 1
+        # left = self.xorg + self.xmin-40/self.window.xscale - 1
+        # right = self.xorg + self.xmax+40/self.window.xscale + 1
+        # top = self.yorg + self.ymax+40/self.window.yscale + 1
+        # bottom = self.yorg + self.ymin-40/self.window.yscale - 1
+        x_width = self.xmax - self.xmin
+        y_width = self.ymax - self.ymin
+        left = self.x - x_width/2 - 40/self.window.xscale - 1
+        right = self.x + x_width/2 + 40/self.window.xscale + 1
+        top = self.y + y_width/2 + 40/self.window.xscale + 1
+        bottom = self.y - y_width/2 - 40/self.window.xscale - 1
         
         text_size = 18
         
@@ -186,10 +205,10 @@ class Coordinate_system():
         t.color(color)
         
         t.penup()
-        t.goto(self.x + horizontal_coords[0], self.y + vertical_coords[0])
+        t.goto(self.xorg + self.hd * horizontal_coords[0], self.yorg + self.vd * vertical_coords[0])
         t.pendown()
         for x, y in zip(horizontal_coords, vertical_coords):
-            t.goto(self.x + x, self.y + y)
+            t.goto(self.xorg + self.hd * x, self.yorg + self.vd * y)
         
         
 def setup_environment(xscale=5, yscale=5, win_xwidth=1.0, win_ywidth=0.9, canvas_xwidth=5000, canvas_ywidth=2000):    
@@ -239,8 +258,6 @@ def wait_until_window_is_closed(window):
 
 if __name__ == "__main__":
     
-    print("hallå?")
-    
     window = setup_environment(
         xscale=10,
         yscale=10,
@@ -251,9 +268,9 @@ if __name__ == "__main__":
     )
     
     
-    XZ = Coordinate_system(window=window, x=-115, y=0, xmin=-70, xmax=30, ymin=-30, ymax=30, grid_density=5, small_grid_density=1, horizontal_name="x (Re) solvind bl bla bla", vertical_name="pls work better now!")
-    XY = Coordinate_system(window=window, x=20, y=0, xmin=-70, xmax=30, ymin=-30, ymax=30, grid_density=5, small_grid_density=1, horizontal_name="x", vertical_name="idk what is happening")
-    YZ = Coordinate_system(window=window, x=115, y=0, xmin=-30, xmax=30, ymin=-30, ymax=30, grid_density=5, small_grid_density=1, horizontal_name="y", vertical_name="Yees")
+    XZ = Coordinate_system(window=window, x=-215, y=0, xmin=-70, xmax=30, ymin=-10, ymax=30, grid_density=5, small_grid_density=1, horizontal_name="x (Re) solvind bl bla bla", vertical_name="pls work better now!", horizontal_dir=-1, vertical_dir=-1)
+    XY = Coordinate_system(window=window, x=0, y=0, xmin=-70, xmax=30, ymin=-10, ymax=30, grid_density=5, small_grid_density=1, horizontal_name="x", vertical_name="idk what is happening", horizontal_dir=-1)
+    YZ = Coordinate_system(window=window, x=215, y=0, xmin=-30, xmax=30, ymin=-30, ymax=30, grid_density=5, small_grid_density=1, horizontal_name="y", vertical_name="Yees", vertical_dir=-1, horizontal_dir=-1)
 
     XZ.prepare_workspace()
     XY.prepare_workspace()
@@ -264,6 +281,10 @@ if __name__ == "__main__":
     y = [1, 2, 3, 3.54, 3.66, 3.72, 3.73, 3.74, 3.81, 4.010001, 4.4567, 4.6789, 4.9876, 5.3, 5.1, 4.9, 4.7, 4.5, 4.3, 4.1, 3.9, 3.5, 3.0, 2.2, 1.2, 0.1, -0.32]
     y.reverse()
     XZ.draw_field_line(x, y, "#5598ee")
+    
+    XZ.origo()
+    XY.origo()
+    YZ.origo()
 
     # updates the screen when everything is drawn
     t.update()
@@ -273,11 +294,11 @@ if __name__ == "__main__":
     w = window.window_width()
     print(h, w)
     
-    input()
+    # input()
     
-    XZ.clear()
+    # XZ.clear()
     
-    input()
+    # input()
 
 
     # Wait for mouse click on exit

@@ -35,7 +35,7 @@ def isfloat(string:str) -> bool:
     """
     
     # if the number is negative - isnumeric doesn't handle negative numbers
-    if string[0] == "-":
+    if len(string) > 0 and string[0] == "-":
         string = string[1:]
     
     return string.replace(".", "", 1).isnumeric()
@@ -272,7 +272,8 @@ def create_coordinate_systems(window):
         grid_density=5,
         small_grid_density=1,
         horizontal_name="x_GSM (Re)",
-        vertical_name="z_GSM (Re)"
+        vertical_name="z_GSM (Re)",
+        horizontal_dir=-1
     )
     
     XY = coordinate_system.Coordinate_system(
@@ -286,7 +287,8 @@ def create_coordinate_systems(window):
         grid_density=5,
         small_grid_density=1,
         horizontal_name="x_GSM (Re)",
-        vertical_name="y_GSM (Re)"
+        vertical_name="y_GSM (Re)",
+        horizontal_dir=-1
     )
     
     YZ = coordinate_system.Coordinate_system(
@@ -302,7 +304,7 @@ def create_coordinate_systems(window):
         horizontal_name="y_GSM (Re)",
         vertical_name="z_GSM (Re)"
     )
-    
+
     return XZ, XY, YZ
     
 
@@ -327,15 +329,15 @@ def create_coordinate_systems(window):
     # calculates the number of seconds from 1970-01-01 00:00:00 to the datetime below
 recalc_values = {
     "ut": datetime.strptime('2016-09-21 12:46:10', '%Y-%m-%d %H:%M:%S').timestamp(),
-    "vxgse": 0,         # Endast "ut" krävs för att köra funktionen geopack.recalc(recalc_values)
+    "vxgse": -400,         # Endast "ut" krävs för att köra funktionen geopack.recalc(recalc_values)
     "vygse": 0,         # Dessa tre gör ingenting, varför?
     "vzgse": 0
 }
 
     # Solvind data
 parmod = [
-    5000,   # solar wind pressure pdyn (nanopascals)
-    5,   # dst (nanotesla)
+    5,   # solar wind pressure pdyn (nanopascals)
+    0,   # dst (nanotesla)
     0,   # byimf (nanotesla)
     2,   # bzimf (nanotesla)
 ]
