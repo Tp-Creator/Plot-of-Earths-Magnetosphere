@@ -45,7 +45,7 @@ def choose_color(default):
     color = input("\nWhat color do you want your field_line to be in? (ex format: #ff00aa)\nIf invalid format red will be used.\ncolor: ")
     
     # test if color is valid
-    if len(color) == 7 and color[0] == "#" and remove_chars(color, "0123456789abcdef ") == "#":
+    if len(color) == 7 and color[0] == "#" and remove_chars(color, "0123456789abcdefABCDEF ") == "#":
         print("Color was valid.")
         return color
     
@@ -171,7 +171,7 @@ def add_specific_field_line(parmod):
     xi = numericQuestion("What will be the start X coordinate?", min=-100, accept_float=True)
     yi = numericQuestion("What will be the start Y coordinate?", min=-100, accept_float=True)
     zi = numericQuestion("What will be the start Z coordinate?", min=-100, accept_float=True)
-    dir = numericQuestion("In what direction should we calcualte? (1 or -1)", 1, -1, unacceptable=[0], err="Only 1 and -1 are accepted")
+    dir = numericQuestion("In what direction should we calcualte? (1 (north to south (z>0)) or -1 (south to north (z<0)))", 1, -1, unacceptable=[0], err="Only 1 and -1 are accepted")
     maxloop = numericQuestion("MaxLoop (How long field line should we make (amount of itterations))?", 10000)
     color = choose_color("#ff0000")
     
@@ -263,12 +263,12 @@ def create_coordinate_systems(window):
     # Create coordinate system objects
     XZ = coordinate_system.Coordinate_system(
         window=window,
-        x=-115,
+        x=-120,
         y=0,
-        xmin=-50,
+        xmin=-60,
         xmax=20,
-        ymin=-25,
-        ymax=25,
+        ymin=-30,
+        ymax=30,
         grid_density=5,
         small_grid_density=1,
         horizontal_name="x_GSM (Re)",
@@ -278,9 +278,9 @@ def create_coordinate_systems(window):
     
     XY = coordinate_system.Coordinate_system(
         window=window,
-        x=20,
+        x=0,
         y=0,
-        xmin=-50,
+        xmin=-60,
         xmax=20,
         ymin=-25,
         ymax=25,
@@ -293,12 +293,12 @@ def create_coordinate_systems(window):
     
     YZ = coordinate_system.Coordinate_system(
         window=window,
-        x=115,
+        x=100,
         y=0, 
         xmin=-25,
         xmax=25,
-        ymin=-25,
-        ymax=25,
+        ymin=-30,
+        ymax=30,
         grid_density=5,
         small_grid_density=1,
         horizontal_name="y_GSM (Re)",
@@ -327,19 +327,25 @@ def create_coordinate_systems(window):
 
     # For the geopack.recalc() function
     # calculates the number of seconds from 1970-01-01 00:00:00 to the datetime below
+
+# ut = datetime.strptime('2016-09-21 12:46:10', '%Y-%m-%d %H:%M:%S').timestamp()
+ut = datetime.strptime('2016--71 12:46:40', '%Y--%j %H:%M:%S').timestamp()
+print("datetime:", datetime.fromtimestamp(ut))
 recalc_values = {
-    "ut": datetime.strptime('2016-09-21 12:46:10', '%Y-%m-%d %H:%M:%S').timestamp(),
-    "vxgse": -400,         # Endast "ut" krävs för att köra funktionen geopack.recalc(recalc_values)
-    "vygse": 0,         # Dessa tre gör ingenting, varför?
-    "vzgse": 0
+    "ut": ut,
+    "vxgse": -387.7,         # Endast "ut" krävs för att köra funktionen geopack.recalc(recalc_values)
+    "vygse": -23.8,         # Dessa tre gör ingenting, varför?
+    "vzgse": -34.2
 }
+
+# res = datetime.strptime(year + "-" + day_num, "%Y-%j").strftime("%m-%d-%Y")
 
     # Solvind data
 parmod = [
-    5,   # solar wind pressure pdyn (nanopascals)
+    10.57,   # solar wind pressure pdyn (nanopascals)
     0,   # dst (nanotesla)
-    0,   # byimf (nanotesla)
-    2,   # bzimf (nanotesla)
+    6.06,   # byimf (nanotesla)
+    -23.28,   # bzimf (nanotesla)
 ]
 
 geopack.recalc(**recalc_values)
