@@ -306,7 +306,51 @@ def create_coordinate_systems(window):
     )
 
     return XZ, XY, YZ
+
+
+def MLT_CGlat(MLT, CGlat):
     
+    MLT = 18    # o'clock
+    CGlat = 70  # degrees
+    
+    x, y, z = [1, 2, 3]
+    
+    
+    # Convert SMlon och SMlat till MLT och CGlat
+    # transform from deg (pi) to latitude and longituderad (degrees)
+    # TODO
+    MLT
+    CGlat
+    
+    
+    
+    smlat=90.0-colat*180.0/np.pi
+    # smlat + colat*180.0/np.pi = 90.0
+    # colat*180.0/np.pi = 90.0 - smlat
+    # colat*180.0 = np.pi * (90.0 - smlat)
+    # colat = (np.pi/180.0) * (90.0 - smlat)
+    
+    # mlt=12+smlon/15.0
+    # mlt-12 = smlon/15.0
+    smlon = (MLT-12) * 15.0
+
+    # smlon=xlon*180.0/np.pi
+    xlon = (smlon*np.pi)/180.0
+    
+    
+    
+    # spherical to cartesian
+    geopack.sphcar()
+    
+    # convert sm to gsm
+    geopack.smgsm(xsm, ysm, zsm, 1)
+    
+    
+    xgsm, ygsm, zgsm = geopack.smgsm(x, y, z, 1)
+    
+    return xgsm, ygsm, zgsm
+    
+    # return 0
 
 #// TODO flytta ned skapandet av variabler
 #// TODO Ta bort main() för det finns inget egentligt syfte med den
@@ -343,7 +387,7 @@ recalc_values = {
     # Solvind data
 parmod = [
     10.57,   # solar wind pressure pdyn (nanopascals)
-    0,   # dst (nanotesla)
+    20,   # dst (nanotesla)
     6.06,   # byimf (nanotesla)
     -23.28,   # bzimf (nanotesla)
 ]
