@@ -168,9 +168,16 @@ def field_line_group(parmod):
 #// TODO will be for adding a new field line to the plot
 def add_specific_field_line(parmod):
     
-    xi = numericQuestion("What will be the start X coordinate?", min=-100, accept_float=True)
-    yi = numericQuestion("What will be the start Y coordinate?", min=-100, accept_float=True)
-    zi = numericQuestion("What will be the start Z coordinate?", min=-100, accept_float=True)
+    choice = numericQuestion("In what coordinate system format do you want to input the coordinates?", li=["MLT-CGLat", "GSM"])
+    
+    if choice == 1:
+        xi = numericQuestion("What will be the start X coordinate?", min=-100, accept_float=True)
+        yi = numericQuestion("What will be the start Y coordinate?", min=-100, accept_float=True)
+        zi = numericQuestion("What will be the start Z coordinate?", min=-100, accept_float=True)
+    else:
+        mlt = numericQuestion("What is the MLT?", min=0, max=24, accept_float=True)
+        CGLat = numericQuestion("What is the CGLat?", min=0, max=180, accept_float=True)
+        xi, yi, zi = MLT_CGlat(mlt, CGLat)
     dir = numericQuestion("In what direction should we calcualte? (1 (north to south (z>0)) or -1 (south to north (z<0)))", 1, -1, unacceptable=[0], err="Only 1 and -1 are accepted")
     maxloop = numericQuestion("MaxLoop (How long field line should we make (amount of itterations))?", 10000)
     color = choose_color("#ff0000")
@@ -308,23 +315,21 @@ def create_coordinate_systems(window):
     return XZ, XY, YZ
 
 
-def MLT_CGlat(MLT, CGlat):
+def MLT_CGlat(MLT, CGlat, r=1):
     
-    MLT = 18    # o'clock
-    CGlat = 70  # degrees
-    
-    x, y, z = [1, 2, 3]
+    # MLT = 18    # o'clock
+    # CGlat = 70  # degrees
     
     
-    # Convert SMlon och SMlat till MLT och CGlat
-    # transform from deg (pi) to latitude and longituderad (degrees)
+    # MLT and CGlat to gsm coordinates
     # TODO
     MLT
-    CGlat
+    theta = colat = CGlat # ?
     
     
+    theta = CGlat * (np.pi/180)
     
-    smlat=90.0-colat*180.0/np.pi
+    # theta = smlat = 90.0 - (colat * 180.0 / np.pi)
     # smlat + colat*180.0/np.pi = 90.0
     # colat*180.0/np.pi = 90.0 - smlat
     # colat*180.0 = np.pi * (90.0 - smlat)
@@ -332,25 +337,26 @@ def MLT_CGlat(MLT, CGlat):
     
     # mlt=12+smlon/15.0
     # mlt-12 = smlon/15.0
-    smlon = (MLT-12) * 15.0
+    phi = smlon = ((MLT-12) * 15.0) * (np.pi/180)
+
+    print("theta:", theta)
+    print("phi:", phi)
+    print("")
 
     # smlon=xlon*180.0/np.pi
-    xlon = (smlon*np.pi)/180.0
-    
-    
+    # xlon = (smlon*np.pi)/180.0
+    # kanske r?
     
     # spherical to cartesian
-    geopack.sphcar()
+    xsm, ysm, zsm = geopack.sphcar(r, theta, phi, j=1)
+    print("sm:", xsm, ysm, zsm)
     
     # convert sm to gsm
-    geopack.smgsm(xsm, ysm, zsm, 1)
+    xgsm, ygsm, zgsm = geopack.smgsm(xsm, ysm, zsm, 1)
     
-    
-    xgsm, ygsm, zgsm = geopack.smgsm(x, y, z, 1)
+    print("gsm:", xgsm, ygsm, zgsm)
     
     return xgsm, ygsm, zgsm
-    
-    # return 0
 
 #// TODO flytta ned skapandet av variabler
 #// TODO Ta bort main() för det finns inget egentligt syfte med den
@@ -364,8 +370,8 @@ def MLT_CGlat(MLT, CGlat):
 
 #// TODO Lägg till mindre linjer mellan de större i koordinat systemet.
 #// TODO FLytta titeln på axlarna till att vara utanför rektanglarna. (vertikal text för vertikal axel)
-# TODO Implementera möjligheten att vända på axlarna så att de går åt andra håll
-# TODO färglägg nattsidan av Jorden för att indikera var solen är.
+#// TODO Implementera möjligheten att vända på axlarna så att de går åt andra håll
+#? TODO färglägg nattsidan av Jorden för att indikera var solen är.
 
 ### Default variable values
 
