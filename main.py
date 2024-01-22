@@ -174,7 +174,7 @@ def add_specific_field_line(parmod):
     if choice == 1:
         mlt = numericQuestion("What is the MLT?", min=0, max=24, accept_float=True)
         CGLat = numericQuestion("What is the MLat?", min=0, max=180, accept_float=True)
-        xi, yi, zi = MLT_CGlat_to_GSM(mlt, CGLat)
+        xi, yi, zi = MLT_MLat_to_GSM(mlt, CGLat)
     elif choice == 2:
         xi = numericQuestion("What will be the start X coordinate?", min=-100, accept_float=True)
         yi = numericQuestion("What will be the start Y coordinate?", min=-100, accept_float=True)
@@ -320,33 +320,18 @@ def create_coordinate_systems(window):
 
 
 # Converts MLT and (CG)Latitude to GSM coordinates
-def MLT_CGlat_to_GSM(MLT, MLat, r=1):
-    
-    # theta = smlat = 90.0 - (colat * 180.0 / np.pi)
-    # smlat + colat*180.0/np.pi = 90.0
-    # colat*180.0/np.pi = 90.0 - smlat
-    # colat*180.0 = np.pi * (90.0 - smlat)
-    # colat = (np.pi/180.0) * (90.0 - smlat)
-    
-    # mlt=12+smlon/15.0
-    # mlt-12 = smlon/15.0
-    
+def MLT_MLat_to_GSM(MLT, MLat, r=1):
     # Converts MLat in deg to theta in rad
     theta = (90 - MLat) * (np.pi/180)
+
     # Converts MLT time to Longitud in rad 24h = 2pi = one lap around the earth.
     phi = ((MLT-12) * 15.0) * (np.pi/180)
-
-    # print("theta:", theta)
-    # print("phi:", phi)
-    # print("")
     
     # spherical to cartesian
     xsm, ysm, zsm = geopack.sphcar(r, theta, phi, j=1)
-    # print("sm:", xsm, ysm, zsm)
     
     # convert sm to gsm
-    xgsm, ygsm, zgsm = geopack.smgsm(xsm, ysm, zsm, 1)
-    
+    xgsm, ygsm, zgsm = geopack.smgsm(xsm, ysm, zsm, 1)    
     print("gsm:", xgsm, ygsm, zgsm)
     
     return xgsm, ygsm, zgsm
