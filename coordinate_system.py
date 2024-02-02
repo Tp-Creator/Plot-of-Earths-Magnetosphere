@@ -194,7 +194,7 @@ class Coordinate_system():
     def prepare_workspace(self):
         self.draw_coordinate_system()
         self.draw_earth()
-        self.draw_box() 
+        self.draw_box()
         
     def draw_field_line(self, horizontal_coords:list, vertical_coords:list, color="#000000"):
         if not len(horizontal_coords) == len(vertical_coords):

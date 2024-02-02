@@ -293,21 +293,22 @@ def create_coordinate_systems(window):
         y=0,
         xmin=-60,
         xmax=20,
-        ymin=-25,
-        ymax=25,
+        ymin=-30,
+        ymax=30,
         grid_density=5,
         small_grid_density=1,
         horizontal_name="x_GSM (Re)",
         vertical_name="y_GSM (Re)",
-        horizontal_dir=-1
+        horizontal_dir=-1,
+        vertical_dir=-1
     )
     
     YZ = coordinate_system.Coordinate_system(
         window=window,
         x=100,
         y=0, 
-        xmin=-25,
-        xmax=25,
+        xmin=-30,
+        xmax=30,
         ymin=-30,
         ymax=30,
         grid_density=5,
@@ -319,7 +320,7 @@ def create_coordinate_systems(window):
     return XZ, XY, YZ
 
 
-# Converts MLT and (CG)Latitude to GSM coordinates
+# Converts MLT and (M)Latitude to GSM coordinates
 def MLT_MLat_to_GSM(MLT, MLat, r=1):
     # Converts MLat in deg to theta in rad
     theta = (90 - MLat) * (np.pi/180)
@@ -349,19 +350,19 @@ ut = datetime.strptime('2016-03-11 12:30:00', '%Y-%m-%d %H:%M:%S').timestamp()
 print("datetime:", datetime.fromtimestamp(ut))
 recalc_values = {
     "ut": ut,
-    "vxgse": -390.5,         # Endast "ut" krävs för att köra funktionen geopack.recalc(recalc_values)
-    "vygse": -21.3,         # Dessa tre gör ingenting, varför?
-    "vzgse": -14.6
+    "vxgse": -376.1,         # Endast "ut" krävs för att köra funktionen geopack.recalc(recalc_values)
+    "vygse": -19.0,         # Dessa tre gör ingenting, varför?
+    "vzgse": -5.5
 }
 
 # res = datetime.strptime(year + "-" + day_num, "%Y-%j").strftime("%m-%d-%Y")
 
     # Solvind data
 parmod = [
-    11.6,   # solar wind pressure pdyn (nanopascals)
-    14,   # dst (nanotesla)
-    8.62,   # byimf (nanotesla)
-    8.49,   # bzimf (nanotesla)
+    8.99,   # solar wind pressure pdyn (nanopascals)
+    12,   # dst (nanotesla)
+    -13.25,   # byimf (nanotesla)
+    19.3,   # bzimf (nanotesla)
 ]
 
 geopack.recalc(**recalc_values)
