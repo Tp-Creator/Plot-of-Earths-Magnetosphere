@@ -345,24 +345,35 @@ def MLT_MLat_to_GSM(MLT, MLat, r=1):
     # For the geopack.recalc() function
     # calculates the number of seconds from 1970-01-01 00:00:00 to the datetime below
 
-ut = datetime.strptime('2016-03-11 12:30:00', '%Y-%m-%d %H:%M:%S').timestamp()
+#! ska göras:
+ut = datetime.strptime('2016-03-11 12:20:00', '%Y-%m-%d %H:%M:%S').timestamp()
 # ut = datetime.strptime('2016--1 12:46:40', '%Y--%j %H:%M:%S').timestamp()
 print("datetime:", datetime.fromtimestamp(ut))
+
+data = [-15.9100, 18.4800, -385.500, -24.6000, -11.2000, 9.54000, 11]
+vxgse = data[2]
+vygse = data[3]
+vzgse = data[4]
+swp = data[5]
+dst = data[6]
+byimf = data[0]
+bzimf = data[1]
+
 recalc_values = {
     "ut": ut,
-    "vxgse": -376.1,         # Endast "ut" krävs för att köra funktionen geopack.recalc(recalc_values)
-    "vygse": -19.0,         # Dessa tre gör ingenting, varför?
-    "vzgse": -5.5
+    "vxgse": vxgse,         # Endast "ut" krävs för att köra funktionen geopack.recalc(recalc_values)
+    "vygse": vygse,         # Dessa tre gör ingenting, varför?
+    "vzgse": vzgse
 }
 
 # res = datetime.strptime(year + "-" + day_num, "%Y-%j").strftime("%m-%d-%Y")
 
     # Solvind data
 parmod = [
-    8.99,   # solar wind pressure pdyn (nanopascals)
-    12,   # dst (nanotesla)
-    -13.25,   # byimf (nanotesla)
-    19.3,   # bzimf (nanotesla)
+    swp,   # solar wind pressure pdyn (nanopascals)
+    dst,   # dst (nanotesla)
+    byimf,   # byimf (nanotesla)
+    bzimf,   # bzimf (nanotesla)
 ]
 
 geopack.recalc(**recalc_values)
