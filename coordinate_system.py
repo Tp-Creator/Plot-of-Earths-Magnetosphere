@@ -209,6 +209,16 @@ class Coordinate_system():
         t.pendown()
         for x, y in zip(horizontal_coords, vertical_coords):
             t.goto(self.xorg + self.hd * x, self.yorg + self.vd * y)
+
+
+    def text(self, x, y, msg, size=12):
+        t = self.turtle
+        t.penup()
+        t.color("#000000")
+        t.goto(x, y)
+        t.pendown()
+        t.write(msg, align="left", font=('Arial', size, 'normal'))
+        
         
         
 def setup_environment(xscale=5, yscale=5, win_xwidth=1.0, win_ywidth=0.9, canvas_xwidth=5000, canvas_ywidth=2000):    

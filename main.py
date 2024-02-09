@@ -345,12 +345,11 @@ def MLT_MLat_to_GSM(MLT, MLat, r=1):
     # For the geopack.recalc() function
     # calculates the number of seconds from 1970-01-01 00:00:00 to the datetime below
 
-#! ska göras:
-ut = datetime.strptime('2016-03-11 12:20:00', '%Y-%m-%d %H:%M:%S').timestamp()
+ut = datetime.strptime('2016-03-11 12:40:00', '%Y-%m-%d %H:%M:%S').timestamp()
 # ut = datetime.strptime('2016--1 12:46:40', '%Y--%j %H:%M:%S').timestamp()
 print("datetime:", datetime.fromtimestamp(ut))
 
-data = [-15.9100, 18.4800, -385.500, -24.6000, -11.2000, 9.54000, 11]
+data = [17.1300, -3.04000, -390.100, -26.7000, -25.1000, 19.9700, 32]
 vxgse = data[2]
 vygse = data[3]
 vzgse = data[4]
@@ -443,6 +442,11 @@ while True:
         XZ.draw_field_line(x, z, color)
         XY.draw_field_line(x, y, color)
         YZ.draw_field_line(y, z, color)
+    
+    # Displays the input values for the model
+    XZ.text(-30, 50, str(datetime.fromtimestamp(recalc_values["ut"])))
+    XZ.text(-30, 45, f"vxgse: {recalc_values['vxgse']},   vygse: {recalc_values['vygse']},   vzgse: {recalc_values['vzgse']}")
+    XZ.text(-30, 40, f"swp: {parmod[0]},   dst: {parmod[1]},   byimf: {parmod[2]},   bzimf: {parmod[3]}")
 
 
     if option not in [1, 4, 5] and input("Do you want to save the calculated field lines for future rendering? (Y/n)") not in ["n", "N"]:
