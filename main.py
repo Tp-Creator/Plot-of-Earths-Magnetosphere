@@ -345,11 +345,11 @@ def MLT_MLat_to_GSM(MLT, MLat, r=1):
     # For the geopack.recalc() function
     # calculates the number of seconds from 1970-01-01 00:00:00 to the datetime below
 
-ut = datetime.strptime('2016-03-11 12:40:00', '%Y-%m-%d %H:%M:%S').timestamp()
+ut = datetime.strptime('2016-03-11 12:15:00', '%Y-%m-%d %H:%M:%S').timestamp()
 # ut = datetime.strptime('2016--1 12:46:40', '%Y--%j %H:%M:%S').timestamp()
 print("datetime:", datetime.fromtimestamp(ut))
 
-data = [17.1300, -3.04000, -390.100, -26.7000, -25.1000, 19.9700, 32]
+data = [-13.2500, 19.3000, -376.100, -19.0000, -5.50000, 8.99000, 12]
 vxgse = data[2]
 vygse = data[3]
 vzgse = data[4]
