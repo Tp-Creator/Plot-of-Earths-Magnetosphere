@@ -135,7 +135,7 @@ def field_line_group(parmod):
     maxloop = numericQuestion("MaxLoop (How long field line should we make (amount of itterations))?", 10000)
     color = choose_color("#000000")
 
-    # calcualtes differnet places around the earth in radians    
+    # calculates different places around the earth in radians    
     radians = np.arange(0, np.pi*2, np.pi*2/amount)
 
     calculated_field_lines = []
@@ -325,10 +325,10 @@ def MLT_MLat_to_GSM(MLT, MLat, r=1):
     # Converts MLat in deg to theta in rad
     theta = (90 - MLat) * (np.pi/180)
 
-    # Converts MLT time to Longitud in rad 24h = 2pi = one lap around the earth.
+    # Converts MLT time to Longitude in rad 24h = 2pi = one lap around the earth.
     phi = ((MLT-12) * 15.0) * (np.pi/180)
     
-    # spherical to cartesian
+    # Spherical to cartesian
     xsm, ysm, zsm = geopack.sphcar(r, theta, phi, j=1)
     
     # convert sm to gsm
@@ -338,8 +338,6 @@ def MLT_MLat_to_GSM(MLT, MLat, r=1):
     return xgsm, ygsm, zgsm
 
 
-
-#? TODO färglägg nattsidan av Jorden för att indikera var solen är.
 ### Default variable values
 
     # For the geopack.recalc() function
@@ -349,7 +347,7 @@ ut = datetime.strptime('2016-03-11 12:15:00', '%Y-%m-%d %H:%M:%S').timestamp()
 # ut = datetime.strptime('2016--1 12:46:40', '%Y--%j %H:%M:%S').timestamp()
 print("datetime:", datetime.fromtimestamp(ut))
 
-data = [-13.2500, 19.3000, -376.100, -19.0000, -5.50000, 8.99000, 12]
+data = []
 vxgse = data[2]
 vygse = data[3]
 vzgse = data[4]
@@ -360,8 +358,8 @@ bzimf = data[1]
 
 recalc_values = {
     "ut": ut,
-    "vxgse": vxgse,         # Endast "ut" krävs för att köra funktionen geopack.recalc(recalc_values)
-    "vygse": vygse,         # Dessa tre gör ingenting, varför?
+    "vxgse": vxgse,         
+    "vygse": vygse,         
     "vzgse": vzgse
 }
 
@@ -389,10 +387,6 @@ window_settings = {
 
 ###
 
-# Potensiella fel:
-    # När man laddar in så får man inte rätt parmod och recalc_values
-        # Recalc_values laddas inte in
-    #
 
 
 # Select what to do
