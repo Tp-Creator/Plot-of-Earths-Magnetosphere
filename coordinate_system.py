@@ -8,7 +8,7 @@ import numpy as np
 class Coordinate_system():
     def __init__(
             self, 
-            window, 
+            window,
             x: int | float,
             y: int | float,
             xmin: int | float,
